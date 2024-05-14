@@ -1030,7 +1030,7 @@ func NewInitiaApp(
 		TxEncoder:       app.txConfig.TxEncoder(),
 		TxDecoder:       app.txConfig.TxDecoder(),
 		MaxBlockSpace:   math.LegacyMustNewDecFromStr("0.6"),
-		MaxTxs:          1000,
+		MaxTxs:          10000,
 		SignerExtractor: signerExtractor,
 	})
 
