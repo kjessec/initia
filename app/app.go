@@ -231,7 +231,7 @@ func init() {
 }
 
 const (
-	maxDefaultLaneSize = 2000
+	maxDefaultLaneSize = 2500
 )
 
 // InitiaApp extends an ABCI application, but with most of its parameters exported.
@@ -1034,7 +1034,7 @@ func NewInitiaApp(
 		TxEncoder:       app.txConfig.TxEncoder(),
 		TxDecoder:       app.txConfig.TxDecoder(),
 		MaxBlockSpace:   math.LegacyMustNewDecFromStr("0.6"),
-		MaxTxs:          2000,
+		MaxTxs:          maxDefaultLaneSize,
 		SignerExtractor: signerExtractor,
 	})
 
@@ -1048,23 +1048,23 @@ func NewInitiaApp(
 	app.SetMempool(mempool)
 	anteHandler := app.setAnteHandler(mevLane, freeLane)
 
-	// NOTE seems this optional, to reduce mempool logic cost
-	// skip this for now
+	// set the ante handler for each lane for VerifyTx at PrepareLaneHandler
 	//
-	// set the ante handler for each lane
-	//
-	// opt := []blockbase.LaneOption{
-	// 	blockbase.WithAnteHandler(anteHandler),
-	// }
-	// mevLane.WithOptions(
-	// 	opt...,
-	// )
-	// freeLane.(*blockbase.BaseLane).WithOptions(
-	// 	opt...,
-	// )
-	// defaultLane.(*blockbase.BaseLane).WithOptions(
-	// 	opt...,
-	// )
+	opt := []blockbase.LaneOption{
+		blockbase.WithAnteHandler(anteHandler),
+	}
+	systemLane.(*blockbase.BaseLane).WithOptions(
+		opt...,
+	)
+	mevLane.WithOptions(
+		opt...,
+	)
+	freeLane.(*blockbase.BaseLane).WithOptions(
+		opt...,
+	)
+	defaultLane.(*blockbase.BaseLane).WithOptions(
+		opt...,
+	)
 
 	// override the base-app's ABCI methods (CheckTx, PrepareProposal, ProcessProposal)
 	blockProposalHandlers := blockabci.NewProposalHandler(
